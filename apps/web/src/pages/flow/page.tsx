@@ -9,6 +9,7 @@ import ReactFlow, {
 	applyNodeChanges,
 } from 'react-flow-renderer'
 import { Button } from '@chakra-ui/react'
+import { CONFIG_TYPES } from '@web3nao/http-configs'
 
 const flowKey = 'example-flow'
 
@@ -28,8 +29,23 @@ export default observer(() => {
 		},
 	} = useMst()
 
+	const web3nao = getWeb3nao({ name: 'Courier' })
+	const web3naoInterfaces = web3nao?.interfaces ?? []
+
 	return (
 		<>
+			<div>
+				{web3naoInterfaces.length > 0 &&
+					web3naoInterfaces[0].properties.map((currentProp) => (
+						<div>
+							{currentProp.name} | {currentProp.type}{' '}
+							{Array.isArray(currentProp.types)
+								? currentProp.types.join(',')
+								: currentProp.types}{' '}
+							| {currentProp.optional === true ? 'optional' : 'mandatory'}
+						</div>
+					))}
+			</div>
 			<Button onClick={() => page.addNode()}>Add Node</Button>
 			<ReactFlow
 				nodes={page.getNodes()}
@@ -49,3 +65,10 @@ export default observer(() => {
 		</>
 	)
 })
+
+function getWeb3nao(options: { name: string }) {
+	const foundType = CONFIG_TYPES.find(
+		(currentType) => currentType.name === options.name,
+	)
+	return foundType
+}
